@@ -1,0 +1,36 @@
+name: CI — Python tests
+
+on:
+  push:
+    branches:
+      - "**"        # run on pushes to any branch; change to 'main' to restrict
+  pull_request:
+    branches:
+      - "**"
+  workflow_dispatch: {}  # allows manual run from Actions tab
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        python-version: [3.10, 3.11]  # test against multiple Python versions
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+
+      - name: Run tests
+        run: |
+          pytest -q
